@@ -345,7 +345,8 @@ if __name__ == "__main__":
                         state[k] = cvt(v)
 
     if torch.cuda.is_available():
-        model = torch.nn.DataParallel(model).cuda()
+        model = torch.nn.DataParallel(model, device_ids=["cuda:0"]).cuda()
+        # model = model.cuda()
 
     # For visualization.
     fixed_z = cvt(torch.randn(100, *data_shape))
@@ -423,7 +424,7 @@ if __name__ == "__main__":
                         x = x.view(x.shape[0], -1)
                     x = cvt(x)
                     loss = compute_bits_per_dim(x, model)
-                    losses.append(loss)
+                    losses.append(loss.cpu().detach().numpy())
 
                 loss = np.mean(losses)
                 logger.info("Epoch {:04d} | Time {:.4f}, Bit/dim {:.4f}".format(epoch, time.time() - start, loss))
